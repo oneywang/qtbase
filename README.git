@@ -1,0 +1,58 @@
+【本项目目的】
+部署一个精简的qtbase/5.5，便于项目集成
+
+【获取代码和安装基础工具】
+python-2.7.8+ activeperl-5.20+ msysgit-1.9.4+ 并设置path
+
+1. clone qtbase
+git clone https://github.com/sunwangme/qtbase.git
+
+2. cd qtbase
+git checkout 5.5
+
+【使用mingw64编译】
+1.install i686-4.9.2-release-posix-dwarf-rt_v4-rev2.7z 并设置path
+http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/4.9.2/threads-posix/dwarf/
+参考：https://github.com/qtproject/qt-creator
+
+2. configure -prefix "c:\qtbase\qt5.5-mingw" -confirm-license -opensource --debug-and-release -shared -nomake tests -nomake examples -no-compile-examples -c++11 -ltcg -qt-sql-sqlite -plugin-sql-sqlite -no-freetype -no-opengl -no-qml-debug -no-icu -no-angle -qt-zlib -qt-libpng -qt-libjpeg -no-openssl -no-dbus -no-audio-backend -no-wmf-backend -no-style-fusion -mp -platform win32-g++
+
+3.cd qtbase
+mingw32-make --jobs=8 //--jobs多核编译加快速度
+mingw32-make install
+
+4.cd qtbase
+mingw32-make docs
+mingw32-make install_docs
+
+【使用vs12编译】
+1. install msvc2013-update4+ wsdk8.0+
+参考：https://github.com/qtproject/qt-creator
+
+2. open vc2013+update4 native-x86 cmd && cd qtbase
+configure -prefix "c:\qtbase\qt5.5-vs12" -confirm-license -opensource -debug-and-release -shared -nomake tests -nomake examples -no-compile-examples -c++11 -ltcg -qt-sql-sqlite -plugin-sql-sqlite -no-freetype -no-opengl -no-qml-debug -no-icu -no-angle -qt-zlib -qt-libpng -qt-libjpeg -no-openssl -no-dbus -no-audio-backend -no-wmf-backend -no-style-fusion -mp -platform win32-msvc2013
+//-force-debug-info -release情况下也生成pdb
+//-no-rtti qtcreator-app的dynamic_cast编译不过去，先去掉
+//-debug-and-release 减小体积直接去掉用release调试
+//-no-style-windows -no-style-windowsvista -no-style-windowsxp 
+//vista依赖xp,xp依赖windows
+
+4.cd qtbase
+nmake
+nmake install
+
+5.cd qtbase
+nmake docs
+nmake install_docs
+
+【备注】
+1 just release!
+configure -prefix "c:\qtbase\qt5.5-vs12" -confirm-license -opensource -release -force-debug-info -shared -nomake tests -nomake examples -no-compile-examples -c++11 -ltcg -qt-sql-sqlite -plugin-sql-sqlite -no-freetype -no-opengl -no-qml-debug -no-icu -no-angle -qt-zlib -qt-libpng -qt-libjpeg -no-openssl -no-dbus -no-audio-backend -no-wmf-backend -no-style-fusion -mp -platform win32-msvc2013
+
+2 just build qtcore!
+configure -prefix "c:\qtcore\qt5.5-vs12" -confirm-license -opensource -release -force-debug-info -shared -nomake tests -nomake examples -no-compile-examples -c++11 -ltcg -qt-sql-sqlite -plugin-sql-sqlite -no-freetype -no-opengl -no-qml-debug -no-icu -no-angle -qt-zlib -qt-libpng -qt-libjpeg -no-openssl -no-dbus -no-audio-backend -no-wmf-backend -no-style-fusion -mp -platform win32-msvc2013 -no-gui -no-widgets
+src.pro : SUBDIRS -= src_network src_sql src_xml src_testlib src_concurrent src_plugins src_tools_qdoc
+
+3 自己建git仓库，先把gitingore删除，commit源代码后，再commit gitingore，不然很多源代码都被忽略了
+
+end
